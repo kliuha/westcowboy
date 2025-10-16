@@ -1,0 +1,250 @@
+
+WEST-SLOTS-character-Man.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Back_hair
+  rotate: false
+  xy: 1889, 1260
+  size: 139, 165
+  orig: 139, 165
+  offset: 0, 0
+  index: -1
+Body
+  rotate: true
+  xy: 2, 64
+  size: 559, 853
+  orig: 559, 853
+  offset: 0, 0
+  index: -1
+Body_Cape
+  rotate: true
+  xy: 1274, 152
+  size: 893, 512
+  orig: 893, 512
+  offset: 0, 0
+  index: -1
+Cape_1
+  rotate: true
+  xy: 852, 648
+  size: 159, 257
+  orig: 159, 257
+  offset: 0, 0
+  index: -1
+Cape_2
+  rotate: true
+  xy: 501, 809
+  size: 236, 771
+  orig: 236, 771
+  offset: 0, 0
+  index: -1
+Cape_Back
+  rotate: false
+  xy: 501, 1047
+  size: 1177, 975
+  orig: 1177, 975
+  offset: 0, 0
+  index: -1
+Hat_Back
+  rotate: false
+  xy: 1214, 14
+  size: 490, 136
+  orig: 490, 136
+  offset: 0, 0
+  index: -1
+Hat_Element
+  rotate: false
+  xy: 1843, 2
+  size: 74, 64
+  orig: 74, 64
+  offset: 0, 0
+  index: -1
+L_Eyeballl
+  rotate: true
+  xy: 1214, 509
+  size: 56, 34
+  orig: 56, 34
+  offset: 0, 0
+  index: -1
+L_Hand
+  rotate: true
+  xy: 501, 645
+  size: 162, 349
+  orig: 162, 349
+  offset: 0, 0
+  index: -1
+L_Leg
+  rotate: false
+  xy: 2, 625
+  size: 497, 1397
+  orig: 497, 1397
+  offset: 0, 0
+  index: -1
+L_Pupill
+  rotate: false
+  xy: 1987, 1230
+  size: 28, 28
+  orig: 28, 28
+  offset: 0, 0
+  index: -1
+Neck
+  rotate: false
+  xy: 1788, 830
+  size: 234, 235
+  orig: 234, 235
+  offset: 0, 0
+  index: -1
+PIckaxe
+  rotate: false
+  xy: 1680, 1427
+  size: 366, 595
+  orig: 366, 595
+  offset: 0, 0
+  index: -1
+PIckaxe_Part_1
+  rotate: false
+  xy: 857, 17
+  size: 355, 629
+  orig: 355, 629
+  offset: 0, 0
+  index: -1
+PIckaxe_Part_2
+  rotate: false
+  xy: 1706, 29
+  size: 135, 121
+  orig: 135, 121
+  offset: 0, 0
+  index: -1
+R_Arm
+  rotate: false
+  xy: 1843, 68
+  size: 186, 323
+  orig: 186, 323
+  offset: 0, 0
+  index: -1
+R_Arm_01
+  rotate: false
+  xy: 1889, 1077
+  size: 96, 181
+  orig: 96, 181
+  offset: 0, 0
+  index: -1
+R_Eyeball
+  rotate: false
+  xy: 1221, 659
+  size: 50, 35
+  orig: 50, 35
+  offset: 0, 0
+  index: -1
+R_Finger
+  rotate: true
+  xy: 1111, 696
+  size: 111, 148
+  orig: 111, 148
+  offset: 0, 0
+  index: -1
+R_Hand
+  rotate: false
+  xy: 1680, 1067
+  size: 207, 358
+  orig: 207, 358
+  offset: 0, 0
+  index: -1
+R_Pupill
+  rotate: true
+  xy: 1987, 1200
+  size: 28, 26
+  orig: 28, 26
+  offset: 0, 0
+  index: -1
+R_sholder
+  rotate: false
+  xy: 1788, 393
+  size: 228, 435
+  orig: 228, 435
+  offset: 0, 0
+  index: -1
+Teeth
+  rotate: true
+  xy: 1214, 567
+  size: 80, 35
+  orig: 80, 35
+  offset: 0, 0
+  index: -1
+Up_Lip
+  rotate: false
+  xy: 1111, 649
+  size: 108, 45
+  orig: 108, 45
+  offset: 0, 0
+  index: -1
+
+WEST-SLOTS-character-Man2.png
+size: 2048,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Hat
+  rotate: false
+  xy: 1256, 754
+  size: 510, 226
+  orig: 510, 226
+  offset: 0, 0
+  index: -1
+Head
+  rotate: true
+  xy: 925, 250
+  size: 300, 310
+  orig: 300, 310
+  offset: 0, 0
+  index: -1
+L_Arm
+  rotate: true
+  xy: 1256, 490
+  size: 262, 293
+  orig: 262, 293
+  offset: 0, 0
+  index: -1
+L_Sholder
+  rotate: true
+  xy: 495, 249
+  size: 301, 428
+  orig: 301, 428
+  offset: 0, 0
+  index: -1
+Layer 2
+  rotate: false
+  xy: 1551, 607
+  size: 104, 145
+  orig: 104, 145
+  offset: 0, 0
+  index: -1
+PIckaxe_Part_3
+  rotate: false
+  xy: 1768, 859
+  size: 135, 121
+  orig: 135, 121
+  offset: 0, 0
+  index: -1
+Pivit
+  rotate: false
+  xy: 2, 203
+  size: 491, 347
+  orig: 491, 347
+  offset: 0, 0
+  index: -1
+R_Leg
+  rotate: true
+  xy: 2, 552
+  size: 428, 1252
+  orig: 428, 1252
+  offset: 0, 0
+  index: -1
+Spit
+  rotate: false
+  xy: 2, 2
+  size: 223, 199
+  orig: 223, 199
+  offset: 0, 0
+  index: -1

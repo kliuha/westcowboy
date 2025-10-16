@@ -1,0 +1,175 @@
+{
+  "frames": {
+    "bag_of_gold.png": {
+      "frame": {
+        "x": 1,
+        "y": 1,
+        "w": 342,
+        "h": 310
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 342,
+        "h": 310
+      },
+      "sourceSize": {
+        "w": 342,
+        "h": 310
+      }
+    },
+    "barrels.png": {
+      "frame": {
+        "x": 345,
+        "y": 1,
+        "w": 354,
+        "h": 301
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 354,
+        "h": 301
+      },
+      "sourceSize": {
+        "w": 354,
+        "h": 301
+      }
+    },
+    "boots.png": {
+      "frame": {
+        "x": 701,
+        "y": 1,
+        "w": 308,
+        "h": 304
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 308,
+        "h": 304
+      },
+      "sourceSize": {
+        "w": 308,
+        "h": 304
+      }
+    },
+    "dynamite_crate.png": {
+      "frame": {
+        "x": 1011,
+        "y": 1,
+        "w": 380,
+        "h": 262
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 380,
+        "h": 262
+      },
+      "sourceSize": {
+        "w": 380,
+        "h": 262
+      }
+    },
+    "gas_lamp.png": {
+      "frame": {
+        "x": 1393,
+        "y": 1,
+        "w": 347,
+        "h": 328
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 347,
+        "h": 328
+      },
+      "sourceSize": {
+        "w": 347,
+        "h": 328
+      }
+    },
+    "pile_of_gold.png": {
+      "frame": {
+        "x": 1742,
+        "y": 1,
+        "w": 370,
+        "h": 299
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 370,
+        "h": 299
+      },
+      "sourceSize": {
+        "w": 370,
+        "h": 299
+      }
+    },
+    "snake.png": {
+      "frame": {
+        "x": 2114,
+        "y": 1,
+        "w": 370,
+        "h": 263
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 370,
+        "h": 263
+      },
+      "sourceSize": {
+        "w": 370,
+        "h": 263
+      }
+    },
+    "wild.png": {
+      "frame": {
+        "x": 2486,
+        "y": 1,
+        "w": 341,
+        "h": 329
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 341,
+        "h": 329
+      },
+      "sourceSize": {
+        "w": 341,
+        "h": 329
+      }
+    }
+  },
+  "meta": {
+    "app": "http://www.codeandweb.com/texturepacker",
+    "version": "1.0",
+    "image": "spritesheet.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2828,
+      "h": 331
+    },
+    "scale": "1"
+  }
+}
