@@ -1,8 +1,9 @@
 import * as PIXI from "pixi.js";
 import { gsap } from "gsap";
-import { Reel, REEL_WIDTH, SYMBOL_SIZE } from "./Reel";
+import { Reel } from "./Reel";
 import { SYMBOLS_CONFIG } from "../config/assets.config";
 import { EventEmitter } from "eventemitter3";
+import { layout } from "../config/layout.config";
 
 export interface SpinResult {
   reelSymbols: string[][];
@@ -44,7 +45,7 @@ export class SlotMachine extends PIXI.Container {
   private createReels(): void {
     for (let i = 0; i < this.NUM_REELS; i++) {
       const reel = new Reel();
-      reel.x = i * REEL_WIDTH;
+      reel.x = i * layout.REEL_WIDTH;
       reel.y = 0;
 
       this.reels.push(reel);
@@ -60,7 +61,7 @@ export class SlotMachine extends PIXI.Container {
           "#23193c"
         );
         const separator = new PIXI.Sprite(separatorTexture);
-        separator.x = (i + 1) * REEL_WIDTH - separator.width / 2;
+        separator.x = (i + 1) * layout.REEL_WIDTH - separator.width / 2;
         separator.y = 0;
         this.reelContainer.addChild(separator);
       }
@@ -76,8 +77,8 @@ export class SlotMachine extends PIXI.Container {
     this.maskGraphics.drawRect(
       0,
       0,
-      this.NUM_REELS * REEL_WIDTH,
-      this.NUM_ROWS * SYMBOL_SIZE
+      this.NUM_REELS * layout.REEL_WIDTH,
+      this.NUM_ROWS * layout.SYMBOL_SIZE
     );
     this.maskGraphics.endFill();
 
@@ -159,6 +160,9 @@ export class SlotMachine extends PIXI.Container {
       }
       reelSymbols.push(reelResult);
     }
+
+    // Force a column win for testing
+    reelSymbols[0] = ["WOMAN", "WOMAN", "WOMAN"];
 
     return {
       reelSymbols,
@@ -300,8 +304,8 @@ export class SlotMachine extends PIXI.Container {
    */
   public get dimensions(): { width: number; height: number } {
     return {
-      width: this.NUM_REELS * REEL_WIDTH,
-      height: this.NUM_ROWS * SYMBOL_SIZE,
+      width: this.NUM_REELS * layout.REEL_WIDTH,
+      height: this.NUM_ROWS * layout.SYMBOL_SIZE,
     };
   }
 }

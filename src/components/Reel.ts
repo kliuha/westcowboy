@@ -2,9 +2,8 @@ import * as PIXI from "pixi.js";
 import { AssetManager } from "../managers/AssetManager";
 import { ASSET_NAMES, SYMBOLS_CONFIG } from "../config/assets.config";
 import { Symbol } from "./Symbol";
+import { layout } from "../config/layout.config";
 
-export const REEL_WIDTH = 160;
-export const SYMBOL_SIZE = 150;
 const VISIBLE_SYMBOLS = 3;
 const EXTRA_SYMBOLS = 2; // for smooth scrolling
 
@@ -74,9 +73,9 @@ export class Reel extends PIXI.Container {
       const value = Object.values(SYMBOLS_CONFIG)[randomIndex].value;
 
       const symbol = new Symbol(texture, symbolType, value);
-      symbol.scaleToFit(SYMBOL_SIZE, SYMBOL_SIZE);
-      symbol.center(REEL_WIDTH, SYMBOL_SIZE);
-      symbol.y = i * SYMBOL_SIZE;
+      symbol.scaleToFit(layout.SYMBOL_SIZE, layout.SYMBOL_SIZE);
+      symbol.center(layout.REEL_WIDTH, layout.SYMBOL_SIZE);
+      symbol.y = i * layout.SYMBOL_SIZE;
 
       this.symbols.push(symbol);
       this.addChild(symbol);
@@ -112,8 +111,9 @@ export class Reel extends PIXI.Container {
     // Smooth final alignment
     if (this.isStopping) {
       let allInPlace = true;
-      this.symbols.forEach((symbol, i) => {
-        const targetY = i * SYMBOL_SIZE;
+      const sortedSymbols = [...this.symbols].sort((a, b) => a.y - b.y);
+      sortedSymbols.forEach((symbol, i) => {
+        const targetY = i * layout.SYMBOL_SIZE;
         if (Math.abs(symbol.y - targetY) > 0.5) {
           symbol.y += (targetY - symbol.y) * 0.2 * delta;
           allInPlace = false;
@@ -146,18 +146,18 @@ export class Reel extends PIXI.Container {
         this.isStopping = true;
 
         // Set correct textures on visible symbols at start of stopping animation
-        if (this.targetSymbols.length === VISIBLE_SYMBOLS) {
-          for (let i = 0; i < VISIBLE_SYMBOLS; i++) {
-            const targetKey = this.targetSymbols[i];
-            const cfg =
-              SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
-            const sheet = this.assetManager.getSpritesheet(ASSET_NAMES.SYMBOLS);
+        const visibleSymbols = this.symbols
+          .filter((s) => s.y >= 0 && s.y < VISIBLE_SYMBOLS * layout.SYMBOL_SIZE)
+          .sort((a, b) => a.y - b.y);
+        for (let i = 0; i < visibleSymbols.length && i < VISIBLE_SYMBOLS; i++) {
+          const targetKey = this.targetSymbols[i];
+          const cfg = SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
+          const sheet = this.assetManager.getSpritesheet(ASSET_NAMES.SYMBOLS);
 
-            if (sheet) {
-              const texture = sheet.textures[cfg.filename];
-              const sym = this.symbols[i];
-              sym.setTexture(texture, targetKey, cfg.value);
-            }
+          if (sheet) {
+            console.log(`159 row: ${cfg.filename}`);
+            const texture = sheet.textures[cfg.filename];
+            visibleSymbols[i].setTexture(texture, targetKey, cfg.value);
           }
         }
         return;
@@ -178,7 +178,8 @@ export class Reel extends PIXI.Container {
     if (this.direction === 1) {
       // Down spin: recycle when top symbol goes below bottom
       const firstSymbol = this.symbols[0];
-      const totalHeight = SYMBOL_SIZE * (VISIBLE_SYMBOLS + EXTRA_SYMBOLS - 1);
+      const totalHeight =
+        layout.SYMBOL_SIZE * (VISIBLE_SYMBOLS + EXTRA_SYMBOLS - 1);
 
       if (firstSymbol.y > totalHeight) {
         this.symbols.shift();
@@ -189,7 +190,7 @@ export class Reel extends PIXI.Container {
       // Up spin: recycle when top symbol goes above top
       const firstSymbol = this.symbols[0];
 
-      if (firstSymbol.y < -SYMBOL_SIZE) {
+      if (firstSymbol.y < -layout.SYMBOL_SIZE) {
         this.symbols.shift();
         this.removeChild(firstSymbol);
         this.addNewSymbolAtBottom();
@@ -210,7 +211,7 @@ export class Reel extends PIXI.Container {
       const nextIndex = this.targetSymbols.length - 1 - this.addedCount;
       const targetKey = this.targetSymbols[nextIndex];
       const cfg = SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
-
+      console.log(`213 row: ${cfg.filename}`);
       newTexture = sheet!.textures[cfg.filename];
       newType = targetKey;
       newValue = cfg.value;
@@ -226,10 +227,11 @@ export class Reel extends PIXI.Container {
     }
 
     const newSymbol = new Symbol(newTexture, newType, newValue);
-    newSymbol.scaleToFit(SYMBOL_SIZE, SYMBOL_SIZE);
-    newSymbol.center(REEL_WIDTH, SYMBOL_SIZE);
+    newSymbol.scaleToFit(layout.SYMBOL_SIZE, layout.SYMBOL_SIZE);
+    newSymbol.center(layout.REEL_WIDTH, layout.SYMBOL_SIZE);
     newSymbol.y =
-      lastSymbol.y + (this.direction === 1 ? -SYMBOL_SIZE : SYMBOL_SIZE);
+      lastSymbol.y +
+      (this.direction === 1 ? -layout.SYMBOL_SIZE : layout.SYMBOL_SIZE);
 
     this.symbols.push(newSymbol);
     this.addChild(newSymbol);

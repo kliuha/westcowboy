@@ -45,19 +45,6 @@ export class MainScene extends BaseScene {
     const slotmachineHeaderTexture = assetManager.getTexture(
       ASSET_NAMES.SLOT_HEADER
     );
-    this.addChild(this.slotMachine);
-
-    if (slotmachineHeaderTexture) {
-      const headerSprite = new PIXI.Sprite(slotmachineHeaderTexture);
-      headerSprite.width = slotDimensions.width + 25;
-      const originalAspectRatio = 1434 / 174;
-      headerSprite.height = headerSprite.width / originalAspectRatio;
-      headerSprite.position.set(
-        (app.screen.width - slotDimensions.width - 10) / 2,
-        80
-      );
-      this.addChild(headerSprite);
-    }
 
     if (slotmachineBgTexture) {
       const backgroundSprite = new PIXI.Sprite(slotmachineBgTexture);
@@ -72,6 +59,18 @@ export class MainScene extends BaseScene {
     }
 
     this.addChild(this.slotMachine);
+
+    if (slotmachineHeaderTexture && this.slotMachineBackground) {
+      const headerSprite = new PIXI.Sprite(slotmachineHeaderTexture);
+      headerSprite.width = slotDimensions.width + 25;
+      const originalAspectRatio = 1434 / 174;
+      headerSprite.height = headerSprite.width / originalAspectRatio;
+      headerSprite.position.set(
+        this.slotMachineBackground.x,
+        this.slotMachineBackground.y - 70
+      );
+      this.addChild(headerSprite);
+    }
 
     // Create UI
     this.createUI(app);
@@ -234,7 +233,7 @@ export class MainScene extends BaseScene {
     return spineAnim.create(
       `/SPINE-Json/${name}/WEST-SLOTS-character-${name}.json`,
       {
-        scale: 0.2,
+        scale: 0.25,
         animation: "animation",
         x,
         y,
@@ -246,28 +245,44 @@ export class MainScene extends BaseScene {
     reelIndex: number;
     character: "Man" | "Woman";
   }) => {
-    if (!this.slotMachine) return;
+    console.log("handleColumnWin called", event);
+    if (!this.slotMachine) {
+      console.log("No slotMachine");
+      return;
+    }
 
     const reel = this.slotMachine.getReel(event.reelIndex);
-    if (!reel) return;
+    if (!reel) {
+      console.log("No reel for index", event.reelIndex);
+      return;
+    }
 
     const reelPosition = this.slotMachine.getReelPosition(event.reelIndex);
-    if (!reelPosition) return;
+    if (!reelPosition) {
+      console.log("No reelPosition for index", event.reelIndex);
+      return;
+    }
 
+    console.log("Creating mask for reel", event.reelIndex);
     // Create a mask to hide only the specific reel area
     this.createReelMask(event.reelIndex);
 
-    const character = await this.createCharacter(
-      event.character,
-      reelPosition.x + reel.width / 2,
-      reelPosition.y + reel.height / 2 + 100
-    );
+    console.log("Creating character", event.character);
+    try {
+      const character = await this.createCharacter(
+        event.character,
+        reelPosition.x + reel.width / 2,
+        reelPosition.y + reel.height / 2 + 100
+      );
 
-    reel.visible = false;
-    this.activeSpineAnimations.push(character);
-    this.addChild(character);
-    console.log("Added spine animation for", event.character);
-    console.log("Added spine animation for", character);
+      console.log("Character created", character);
+      reel.visible = false;
+      this.activeSpineAnimations.push(character);
+      this.addChild(character);
+      console.log("Added spine animation for", event.character);
+    } catch (error) {
+      console.error("Error creating character:", error);
+    }
   };
 
   private createReelMask(reelIndex: number): void {
