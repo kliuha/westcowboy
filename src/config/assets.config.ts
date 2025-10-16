@@ -52,14 +52,14 @@ export const ASSET_NAMES = {
 
 export const SYMBOLS_CONFIG = {
   // Existing symbols
-  BAG_OF_GOLD: { filename: "bag_of_gold.png", value: 100 },
-  BARRELS: { filename: "barrels.png", value: 50 },
-  BOOTS: { filename: "boots.png", value: 75 },
-  DYNAMITE_CRATE: { filename: "dynamite_crate.png", value: 200 },
-  GAS_LAMP: { filename: "gas_lamp.png", value: 150 },
-  PILE_OF_GOLD: { filename: "pile_of_gold.png", value: 300 },
-  SNAKE: { filename: "snake.png", value: 25 },
-  WILD: { filename: "wild.png", value: 175 },
-  MAN: { filename: "character_man_symbol.png", value: 500 },
-  WOMAN: { filename: "character_woman_symbol.png", value: 500 },
+  BAG_OF_GOLD: { filename: "bag_of_gold.png", value: 100, weight: 5 },
+  BARRELS: { filename: "barrels.png", value: 50, weight: 10 },
+  BOOTS: { filename: "boots.png", value: 75, weight: 7 },
+  DYNAMITE_CRATE: { filename: "dynamite_crate.png", value: 200, weight: 3 },
+  GAS_LAMP: { filename: "gas_lamp.png", value: 150, weight: 4 },
+  PILE_OF_GOLD: { filename: "pile_of_gold.png", value: 300, weight: 2 },
+  SNAKE: { filename: "snake.png", value: 25, weight: 15 },
+  WILD: { filename: "wild.png", value: 175, weight: 4 },
+  MAN: { filename: "character_man_symbol.png", value: 500, weight: 1 },
+  WOMAN: { filename: "character_woman_symbol.png", value: 500, weight: 1 },
 } as const;

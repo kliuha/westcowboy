@@ -266,6 +266,8 @@ export class MainScene extends BaseScene {
     reel.visible = false;
     this.activeSpineAnimations.push(character);
     this.addChild(character);
+    console.log("Added spine animation for", event.character);
+    console.log("Added spine animation for", character);
   };
 
   private createReelMask(reelIndex: number): void {

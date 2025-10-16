@@ -19,8 +19,10 @@ export class Reel extends PIXI.Container {
   private targetSpeed = 50;
   private acceleration = 2;
   private deceleration = 1;
+  private direction = 1; // 1 for down, -1 for up
 
   private targetSymbols: string[] = [];
+  private addedCount = 0;
   private isSlowingDown = false;
   private isStopping = false;
   private blurFilter: PIXI.BlurFilter;
@@ -34,6 +36,11 @@ export class Reel extends PIXI.Container {
 
     this.loadSymbolTextures();
     this.create();
+  }
+
+  /** Set spin direction: 1 for down, -1 for up */
+  public setDirection(dir: 1 | -1): void {
+    this.direction = dir;
   }
 
   /** Load all symbol textures */
@@ -94,6 +101,7 @@ export class Reel extends PIXI.Container {
     }
 
     this.targetSymbols = targets;
+    this.addedCount = 0;
     this.isSlowingDown = true;
   }
 
@@ -136,61 +144,95 @@ export class Reel extends PIXI.Container {
       if (this.spinSpeed === 0 && !this.isStopping) {
         this.isSpinning = false;
         this.isStopping = true;
+
+        // Set correct textures on visible symbols at start of stopping animation
+        if (this.targetSymbols.length === VISIBLE_SYMBOLS) {
+          for (let i = 0; i < VISIBLE_SYMBOLS; i++) {
+            const targetKey = this.targetSymbols[i];
+            const cfg =
+              SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
+            const sheet = this.assetManager.getSpritesheet(ASSET_NAMES.SYMBOLS);
+
+            if (sheet) {
+              const texture = sheet.textures[cfg.filename];
+              const sym = this.symbols[i];
+              sym.setTexture(texture, targetKey, cfg.value);
+            }
+          }
+        }
         return;
       }
     }
 
     // Move symbols
-    this.symbols.forEach((s) => (s.y += this.spinSpeed * delta));
+    this.symbols.forEach(
+      (s) => (s.y += this.spinSpeed * delta * this.direction)
+    );
 
     // Recycle symbols
     this.recycleSymbols();
   }
 
-  /** Recycle symbols that leave bottom, inject target symbols when slowing */
+  /** Recycle symbols that leave bottom/top, inject target symbols when slowing */
   private recycleSymbols(): void {
-    const firstSymbol = this.symbols[0];
-    const totalHeight = SYMBOL_SIZE * (VISIBLE_SYMBOLS + EXTRA_SYMBOLS - 1);
+    if (this.direction === 1) {
+      // Down spin: recycle when top symbol goes below bottom
+      const firstSymbol = this.symbols[0];
+      const totalHeight = SYMBOL_SIZE * (VISIBLE_SYMBOLS + EXTRA_SYMBOLS - 1);
 
-    if (firstSymbol.y > totalHeight) {
-      this.symbols.shift();
-      this.removeChild(firstSymbol);
-
-      const lastSymbol = this.symbols[this.symbols.length - 1];
-      let newTexture: PIXI.Texture;
-      let newType: string;
-      let newValue: number;
-
-      const sheet = this.assetManager.getSpritesheet(ASSET_NAMES.SYMBOLS);
-
-      if (this.isSlowingDown && this.targetSymbols.length > 0) {
-        // When slowing, fill next symbols from targetSymbols (in reverse order)
-        const offset = this.symbols.length - EXTRA_SYMBOLS;
-        const nextIndex = offset % this.targetSymbols.length;
-        const targetKey = this.targetSymbols[nextIndex];
-        const cfg = SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
-
-        newTexture = sheet!.textures[cfg.filename];
-        newType = targetKey;
-        newValue = cfg.value;
-      } else {
-        // Random symbol during spin
-        const randomIndex = Math.floor(
-          Math.random() * this.symbolTextures.length
-        );
-        newTexture = this.symbolTextures[randomIndex];
-        newType = this.symbolTypes[randomIndex];
-        newValue = Object.values(SYMBOLS_CONFIG)[randomIndex].value;
+      if (firstSymbol.y > totalHeight) {
+        this.symbols.shift();
+        this.removeChild(firstSymbol);
+        this.addNewSymbolAtBottom();
       }
+    } else {
+      // Up spin: recycle when top symbol goes above top
+      const firstSymbol = this.symbols[0];
 
-      const newSymbol = new Symbol(newTexture, newType, newValue);
-      newSymbol.scaleToFit(SYMBOL_SIZE, SYMBOL_SIZE);
-      newSymbol.center(REEL_WIDTH, SYMBOL_SIZE);
-      newSymbol.y = lastSymbol.y - SYMBOL_SIZE;
-
-      this.symbols.push(newSymbol);
-      this.addChild(newSymbol);
+      if (firstSymbol.y < -SYMBOL_SIZE) {
+        this.symbols.shift();
+        this.removeChild(firstSymbol);
+        this.addNewSymbolAtBottom();
+      }
     }
+  }
+
+  private addNewSymbolAtBottom(): void {
+    const lastSymbol = this.symbols[this.symbols.length - 1];
+    let newTexture: PIXI.Texture;
+    let newType: string;
+    let newValue: number;
+
+    const sheet = this.assetManager.getSpritesheet(ASSET_NAMES.SYMBOLS);
+
+    if (this.isSlowingDown && this.targetSymbols.length > 0) {
+      // When slowing, fill next symbols from targetSymbols (in reverse order for down)
+      const nextIndex = this.targetSymbols.length - 1 - this.addedCount;
+      const targetKey = this.targetSymbols[nextIndex];
+      const cfg = SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
+
+      newTexture = sheet!.textures[cfg.filename];
+      newType = targetKey;
+      newValue = cfg.value;
+      this.addedCount++;
+    } else {
+      // Random symbol during spin
+      const randomIndex = Math.floor(
+        Math.random() * this.symbolTextures.length
+      );
+      newTexture = this.symbolTextures[randomIndex];
+      newType = this.symbolTypes[randomIndex];
+      newValue = Object.values(SYMBOLS_CONFIG)[randomIndex].value;
+    }
+
+    const newSymbol = new Symbol(newTexture, newType, newValue);
+    newSymbol.scaleToFit(SYMBOL_SIZE, SYMBOL_SIZE);
+    newSymbol.center(REEL_WIDTH, SYMBOL_SIZE);
+    newSymbol.y =
+      lastSymbol.y + (this.direction === 1 ? -SYMBOL_SIZE : SYMBOL_SIZE);
+
+    this.symbols.push(newSymbol);
+    this.addChild(newSymbol);
   }
 
   /** Final stop after smooth alignment */
@@ -200,23 +242,6 @@ export class Reel extends PIXI.Container {
     this.isStopping = false;
     this.spinSpeed = 0;
     this.blurFilter.blurY = 0;
-
-    // Ensure final visible symbols exactly match targetSymbols
-    if (this.targetSymbols.length === VISIBLE_SYMBOLS) {
-      const startIndex = this.symbols.length - VISIBLE_SYMBOLS - EXTRA_SYMBOLS;
-      for (let i = 0; i < VISIBLE_SYMBOLS; i++) {
-        const symbolIndex = startIndex + i;
-        const targetKey = this.targetSymbols[i];
-        const cfg = SYMBOLS_CONFIG[targetKey as keyof typeof SYMBOLS_CONFIG];
-        const sheet = this.assetManager.getSpritesheet(ASSET_NAMES.SYMBOLS);
-
-        if (symbolIndex >= 0 && symbolIndex < this.symbols.length && sheet) {
-          const texture = sheet.textures[cfg.filename];
-          const sym = this.symbols[symbolIndex];
-          sym.setTexture(texture, targetKey, cfg.value);
-        }
-      }
-    }
   }
 
   /** Get the visible symbols */

@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { gsap } from "gsap";
 import { Reel, REEL_WIDTH, SYMBOL_SIZE } from "./Reel";
 import { SYMBOLS_CONFIG } from "../config/assets.config";
 import { EventEmitter } from "eventemitter3";
@@ -25,8 +26,6 @@ export class SlotMachine extends PIXI.Container {
   private maskGraphics: PIXI.Graphics | undefined;
 
   private isSpinning: boolean = false;
-  private spinStartDelay: number = 100; // ms delay between reel starts
-  private spinStopDelay: number = 100; // ms delay between reel stops
   public events: EventEmitter = new EventEmitter();
 
   constructor() {
@@ -101,37 +100,48 @@ export class SlotMachine extends PIXI.Container {
 
     this.isSpinning = true;
 
+    // Set random direction for each reel
+    this.reels.forEach((reel) => {
+      reel.setDirection(Math.random() > 0.5 ? 1 : -1);
+    });
+
+    const tl = gsap.timeline();
+
     // Start reels with staggered delay
-    for (let i = 0; i < this.reels.length; i++) {
-      await this.delay(this.spinStartDelay);
-      this.reels[i].spin();
-    }
+    this.reels.forEach((_, i) => {
+      tl.call(() => this.reels[i].spin(), [], i * 0.1);
+    });
 
     // Generate random outcome (in a real game, this comes from server)
     const spinResult = this.generateSpinOutcome();
 
-    // Wait a bit before stopping
-    await this.delay(2000);
+    // Wait for realistic spin duration (2-4 seconds)
+    const spinDuration = 2 + Math.random() * 2;
+    tl.to({}, { duration: spinDuration }, "+=0");
 
     // Stop reels with staggered delay
-    for (let i = 0; i < this.reels.length; i++) {
-      this.reels[i].setTargetSymbols(spinResult.reelSymbols[i]);
-      await this.delay(this.spinStopDelay);
-    }
+    this.reels.forEach((_, i) => {
+      tl.call(
+        () => this.reels[i].setTargetSymbols(spinResult.reelSymbols[i]),
+        [],
+        "+=0.1"
+      );
+    });
 
-    // Wait for all reels to fully stop
-    await this.waitForReelsToStop();
-
-    this.isSpinning = false;
-
-    // Calculate wins
-    spinResult.winningLines = this.calculateWins(spinResult.reelSymbols);
-    spinResult.totalWin = spinResult.winningLines.reduce(
-      (sum, line) => sum + line.payout,
-      0
-    );
-
-    return spinResult;
+    // Wait for all to stop and calculate wins
+    return new Promise((resolve) => {
+      tl.call(() => {
+        this.waitForReelsToStop().then(() => {
+          spinResult.winningLines = this.calculateWins(spinResult.reelSymbols);
+          spinResult.totalWin = spinResult.winningLines.reduce(
+            (sum, line) => sum + line.payout,
+            0
+          );
+          this.isSpinning = false;
+          resolve(spinResult);
+        });
+      });
+    });
   }
 
   /**
@@ -140,23 +150,12 @@ export class SlotMachine extends PIXI.Container {
    */
   private generateSpinOutcome(): SpinResult {
     const reelSymbols: string[][] = [];
-    const symbolKeys = Object.keys(SYMBOLS_CONFIG);
-
-    // Mock data for testing: 100% chance to force a column win on reel 1
-    const forceWin = true;
-    const winningReel = 0; // Reel 1
-    const winSymbol = "MAN";
 
     for (let i = 0; i < this.NUM_REELS; i++) {
       const reelResult: string[] = [];
       for (let j = 0; j < this.NUM_ROWS; j++) {
-        if (forceWin && i === winningReel) {
-          reelResult.push(winSymbol);
-        } else {
-          const randomSymbol =
-            symbolKeys[Math.floor(Math.random() * symbolKeys.length)];
-          reelResult.push(randomSymbol);
-        }
+        const randomSymbol = this.getRandomSymbol();
+        reelResult.push(randomSymbol);
       }
       reelSymbols.push(reelResult);
     }
@@ -166,6 +165,25 @@ export class SlotMachine extends PIXI.Container {
       winningLines: [],
       totalWin: 0,
     };
+  }
+
+  /**
+   * Get a random symbol based on weights
+   */
+  private getRandomSymbol(): string {
+    const symbols = Object.entries(SYMBOLS_CONFIG);
+    const totalWeight = symbols.reduce(
+      (sum, [_, config]) => sum + config.weight,
+      0
+    );
+    let random = Math.random() * totalWeight;
+
+    for (const [key, config] of symbols) {
+      random -= config.weight;
+      if (random <= 0) return key;
+    }
+
+    return symbols[0][0]; // fallback
   }
 
   /**
@@ -182,6 +200,7 @@ export class SlotMachine extends PIXI.Container {
         (firstSymbol === "MAN" || firstSymbol === "WOMAN") &&
         reelSymbols[reel].every((s) => s === firstSymbol)
       ) {
+        console.log(`Full column win on reel ${reel + 1} with ${firstSymbol}`);
         this.events.emit("columnWin", {
           reelIndex: reel,
           character: firstSymbol === "MAN" ? "Man" : "Woman",
@@ -253,13 +272,6 @@ export class SlotMachine extends PIXI.Container {
         }
       }, 100);
     });
-  }
-
-  /**
-   * Utility delay function
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
