@@ -339,11 +339,11 @@ export class AssetManager {
     const charactersToGenerate = [
       {
         name: ASSET_NAMES.CHARACTER_MAN,
-        newSymbolName: SYMBOLS_CONFIG.CHARACTER_MAN_SYMBOL.filename,
+        newSymbolName: SYMBOLS_CONFIG.MAN.filename,
       },
       {
         name: ASSET_NAMES.CHARACTER_WOMAN,
-        newSymbolName: SYMBOLS_CONFIG.CHARACTER_WOMAN_SYMBOL.filename,
+        newSymbolName: SYMBOLS_CONFIG.WOMAN.filename,
       },
     ];
 

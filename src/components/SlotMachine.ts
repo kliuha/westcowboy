@@ -142,12 +142,21 @@ export class SlotMachine extends PIXI.Container {
     const reelSymbols: string[][] = [];
     const symbolKeys = Object.keys(SYMBOLS_CONFIG);
 
+    // Mock data for testing: 100% chance to force a column win on reel 1
+    const forceWin = true;
+    const winningReel = 0; // Reel 1
+    const winSymbol = "MAN";
+
     for (let i = 0; i < this.NUM_REELS; i++) {
       const reelResult: string[] = [];
       for (let j = 0; j < this.NUM_ROWS; j++) {
-        const randomSymbol =
-          symbolKeys[Math.floor(Math.random() * symbolKeys.length)];
-        reelResult.push(randomSymbol);
+        if (forceWin && i === winningReel) {
+          reelResult.push(winSymbol);
+        } else {
+          const randomSymbol =
+            symbolKeys[Math.floor(Math.random() * symbolKeys.length)];
+          reelResult.push(randomSymbol);
+        }
       }
       reelSymbols.push(reelResult);
     }
@@ -207,9 +216,14 @@ export class SlotMachine extends PIXI.Container {
           SYMBOLS_CONFIG[firstSymbol as keyof typeof SYMBOLS_CONFIG];
         const payout = symbolConfig.value * matchCount;
 
+        // Create a version of the line where WILDs are replaced by the winning symbol for clarity
+        const concreteLineSymbols = lineSymbols
+          .slice(0, matchCount)
+          .map((s) => (s === "WILD" ? firstSymbol : s));
+
         winningLines.push({
           lineNumber: row + 1,
-          symbols: lineSymbols.slice(0, matchCount),
+          symbols: concreteLineSymbols,
           count: matchCount,
           payout: payout,
         });

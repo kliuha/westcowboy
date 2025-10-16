@@ -13,6 +13,8 @@ export class MainScene extends BaseScene {
   private spinButton?: PIXI.Graphics;
   private balanceText?: PIXI.Text;
   private winText?: PIXI.Text;
+  private slotMachineBackground?: PIXI.Sprite;
+  private backgroundMask?: PIXI.Graphics;
 
   private balance: number = 10000;
   private currentBet: number = 10;
@@ -36,24 +38,14 @@ export class MainScene extends BaseScene {
       (app.screen.width - slotDimensions.width) / 2 + 15,
       150
     );
+
     const slotmachineBgTexture = assetManager.getTexture(
       ASSET_NAMES.SLOTMACHINE_BG
     );
     const slotmachineHeaderTexture = assetManager.getTexture(
       ASSET_NAMES.SLOT_HEADER
     );
-    if (slotmachineBgTexture) {
-      const backgroundSprite = new PIXI.Sprite(slotmachineBgTexture);
-      backgroundSprite.width = slotDimensions.width + 25;
-      backgroundSprite.height = slotDimensions.height + 25;
-      backgroundSprite.position.set(
-        (app.screen.width - slotDimensions.width - 10) / 2,
-        135
-      );
-      app.stage.addChild(backgroundSprite);
-    }
-
-    app.stage.addChild(this.slotMachine);
+    this.addChild(this.slotMachine);
 
     if (slotmachineHeaderTexture) {
       const headerSprite = new PIXI.Sprite(slotmachineHeaderTexture);
@@ -64,8 +56,22 @@ export class MainScene extends BaseScene {
         (app.screen.width - slotDimensions.width - 10) / 2,
         80
       );
-      app.stage.addChild(headerSprite);
+      this.addChild(headerSprite);
     }
+
+    if (slotmachineBgTexture) {
+      const backgroundSprite = new PIXI.Sprite(slotmachineBgTexture);
+      backgroundSprite.width = slotDimensions.width + 25;
+      backgroundSprite.height = slotDimensions.height + 25;
+      backgroundSprite.position.set(
+        (app.screen.width - slotDimensions.width - 10) / 2,
+        135
+      );
+      this.addChild(backgroundSprite);
+      this.slotMachineBackground = backgroundSprite;
+    }
+
+    this.addChild(this.slotMachine);
 
     // Create UI
     this.createUI(app);
@@ -90,7 +96,7 @@ export class MainScene extends BaseScene {
       strokeThickness: 4,
     });
     this.balanceText.position.set(50, 50);
-    app.stage.addChild(this.balanceText);
+    this.addChild(this.balanceText);
 
     // Win display
     this.winText = new PIXI.Text("", {
@@ -103,7 +109,7 @@ export class MainScene extends BaseScene {
     });
     this.winText.position.set(app.screen.width / 2, app.screen.height - 200);
     this.winText.anchor.set(0.5);
-    app.stage.addChild(this.winText);
+    this.addChild(this.winText);
 
     // Spin button
     this.spinButton = new PIXI.Graphics();
@@ -121,7 +127,7 @@ export class MainScene extends BaseScene {
 
     this.spinButton.on("pointerdown", () => this.handleSpin());
 
-    app.stage.addChild(this.spinButton);
+    this.addChild(this.spinButton);
 
     // Spin button text
     const buttonText = new PIXI.Text("SPIN", {
@@ -248,18 +254,106 @@ export class MainScene extends BaseScene {
     const reelPosition = this.slotMachine.getReelPosition(event.reelIndex);
     if (!reelPosition) return;
 
+    // Create a mask to hide only the specific reel area
+    this.createReelMask(event.reelIndex);
+
     const character = await this.createCharacter(
       event.character,
       reelPosition.x + reel.width / 2,
-      reelPosition.y + reel.height / 2
+      reelPosition.y + reel.height / 2 + 100
     );
 
+    reel.visible = false;
     this.activeSpineAnimations.push(character);
     this.addChild(character);
   };
 
+  private createReelMask(reelIndex: number): void {
+    if (!this.slotMachine || !this.slotMachineBackground) return;
+
+    const reel = this.slotMachine.getReel(reelIndex);
+    if (!reel) return;
+
+    const reelPosition = this.slotMachine.getReelPosition(reelIndex);
+    if (!reelPosition) return;
+
+    // Remove existing mask if any
+    if (this.backgroundMask) {
+      this.removeChild(this.backgroundMask);
+      this.backgroundMask.destroy();
+    }
+
+    // Create a new mask that covers all reels EXCEPT the one with spine animation
+    this.backgroundMask = new PIXI.Graphics();
+
+    // Start by filling the entire background area (this will be visible)
+    this.backgroundMask.beginFill(0xffffff);
+    this.backgroundMask.drawRect(
+      this.slotMachineBackground.x,
+      this.slotMachineBackground.y,
+      this.slotMachineBackground.width,
+      this.slotMachineBackground.height
+    );
+    this.backgroundMask.endFill();
+
+    // Cut out the area where the spine animation will be (the specific reel)
+    this.backgroundMask.beginHole();
+    this.backgroundMask.drawRect(
+      reelPosition.x - 5, // Small padding to ensure full coverage
+      reelPosition.y - 5,
+      reel.width + 10,
+      reel.height + 10
+    );
+    this.backgroundMask.endHole();
+
+    // Apply the mask to the background
+    this.slotMachineBackground.mask = this.backgroundMask;
+    this.addChild(this.backgroundMask);
+  }
+
   private clearSpineAnimations() {
-    this.activeSpineAnimations.forEach((anim) => anim.destroy());
+    // Clear spine animations
+    this.activeSpineAnimations.forEach((anim) => {
+      if (anim.parent) {
+        anim.parent.removeChild(anim);
+      }
+      anim.destroy();
+    });
     this.activeSpineAnimations = [];
+
+    // Remove the mask to show the full background again
+    if (this.slotMachineBackground) {
+      this.slotMachineBackground.mask = null;
+    }
+
+    // Remove mask graphics
+    if (this.backgroundMask) {
+      if (this.backgroundMask.parent) {
+        this.backgroundMask.parent.removeChild(this.backgroundMask);
+      }
+      this.backgroundMask.destroy();
+      this.backgroundMask = undefined;
+    }
+
+    // Make all reels visible again
+    if (this.slotMachine) {
+      for (let i = 0; i < 5; i++) {
+        const reel = this.slotMachine.getReel(i);
+        if (reel) {
+          reel.visible = true;
+        }
+      }
+    }
+  }
+
+  // Clean up method to ensure proper destruction
+  public destroy(): void {
+    this.clearSpineAnimations();
+
+    if (this.slotMachine) {
+      this.slotMachine.events.off("columnWin", this.handleColumnWin);
+    }
+
+    super.destroy();
   }
 }

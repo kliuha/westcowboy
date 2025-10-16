@@ -62,11 +62,4 @@ export const SYMBOLS_CONFIG = {
   WILD: { filename: "wild.png", value: 175 },
   MAN: { filename: "character_man_symbol.png", value: 500 },
   WOMAN: { filename: "character_woman_symbol.png", value: 500 },
-
-  // New symbols generated from Spine characters
-  CHARACTER_MAN_SYMBOL: { filename: "character_man_symbol.png", value: 500 },
-  CHARACTER_WOMAN_SYMBOL: {
-    filename: "character_woman_symbol.png",
-    value: 500,
-  },
 } as const;

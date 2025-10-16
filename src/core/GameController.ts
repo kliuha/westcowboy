@@ -27,6 +27,7 @@ export class GameController {
   private setupScene(): void {
     switch (this.stateManager.getAppState()) {
       case STATES.READY:
+        this.app.stage.addChild(this.mainScene);
         this.mainScene.createScene(this.app);
         break;
       default:
